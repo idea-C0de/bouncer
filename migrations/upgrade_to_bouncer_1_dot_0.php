@@ -32,6 +32,7 @@ class UpgradeToBouncer1Dot0 extends Migration
         Schema::create('assigned_roles', function (Blueprint $table) {
             $table->integer('role_id')->unsigned()->index();
             $table->morphs('entity');
+            $table->integer('scope')->nullable()->index();
 
             $table->foreign('role_id')->references('id')->on('roles')
                   ->onUpdate('cascade')->onDelete('cascade');
@@ -41,6 +42,7 @@ class UpgradeToBouncer1Dot0 extends Migration
             $table->integer('ability_id')->unsigned()->index();
             $table->morphs('entity');
             $table->boolean('forbidden')->default(false);
+            $table->integer('scope')->nullable()->index();
 
             $table->foreign('ability_id')->references('id')->on('abilities')
                   ->onUpdate('cascade')->onDelete('cascade');
@@ -57,11 +59,13 @@ class UpgradeToBouncer1Dot0 extends Migration
         Schema::table('abilities', function (Blueprint $table) {
             $table->string('title')->nullable()->after('name');
             $table->boolean('only_owned')->after('entity_type')->default(false);
+            $table->integer('scope')->nullable()->index();
         });
 
         Schema::table('roles', function (Blueprint $table) {
             $table->string('title')->nullable()->after('name');
             $table->integer('level')->unsigned()->nullable()->after('name');
+            $table->integer('scope')->nullable()->index();
         });
     }
 
@@ -169,7 +173,7 @@ class UpgradeToBouncer1Dot0 extends Migration
             $table->string('entity_type', 150)->nullable()->change();
 
             $table->unique(
-                ['name', 'entity_id', 'entity_type', 'only_owned'],
+                ['name', 'entity_id', 'entity_type', 'only_owned', 'scope'],
                 'abilities_unique_index'
             );
         });

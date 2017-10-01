@@ -21,25 +21,30 @@ class CreateBouncerTables extends Migration
             $table->integer('entity_id')->unsigned()->nullable();
             $table->string('entity_type', 150)->nullable();
             $table->boolean('only_owned')->default(false);
+            $table->integer('scope')->nullable()->index();
             $table->timestamps();
 
             $table->unique(
-                ['name', 'entity_id', 'entity_type', 'only_owned'],
+                ['name', 'entity_id', 'entity_type', 'only_owned', 'scope'],
                 'abilities_unique_index'
             );
         });
 
         Schema::create(Models::table('roles'), function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name')->unique();
+            $table->string('name');
             $table->string('title')->nullable();
             $table->integer('level')->unsigned()->nullable();
+            $table->integer('scope')->nullable()->index();
             $table->timestamps();
+
+            $table->unique(['name', 'scope']);
         });
 
         Schema::create(Models::table('assigned_roles'), function (Blueprint $table) {
             $table->integer('role_id')->unsigned()->index();
             $table->morphs('entity');
+            $table->integer('scope')->nullable()->index();
 
             $table->foreign('role_id')->references('id')->on(Models::table('roles'))
                   ->onUpdate('cascade')->onDelete('cascade');
@@ -49,6 +54,7 @@ class CreateBouncerTables extends Migration
             $table->integer('ability_id')->unsigned()->index();
             $table->morphs('entity');
             $table->boolean('forbidden')->default(false);
+            $table->integer('scope')->nullable()->index();
 
             $table->foreign('ability_id')->references('id')->on(Models::table('abilities'))
                   ->onUpdate('cascade')->onDelete('cascade');
