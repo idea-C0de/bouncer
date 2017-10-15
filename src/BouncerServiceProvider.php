@@ -41,6 +41,7 @@ class BouncerServiceProvider extends ServiceProvider
         $this->setUserModel();
 
         if ($this->runningInConsole()) {
+            $this->publishMiddleware();
             $this->publishMigrations();
         }
     }
@@ -131,6 +132,20 @@ class BouncerServiceProvider extends ServiceProvider
     protected function registerSeeder()
     {
         $this->app->singleton(Seeder::class);
+    }
+
+    /**
+     * Publish the package's middleware.
+     *
+     * @return void
+     */
+    protected function publishMiddleware()
+    {
+        $stub = __DIR__.'/../middleware/ScopeBouncer.php';
+
+        $target = app_path('Http/Middleware/ScopeBouncer.php');
+
+        $this->publishes([$stub => $target], 'bouncer.middleware');
     }
 
     /**
